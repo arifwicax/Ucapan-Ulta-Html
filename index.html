@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesan untuk Khairunnisa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.4/dist/sweetalert2.all.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+            min-height: 100vh;
+            position: fixed;
+            width: 100%;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader {
+            width: 80px;
+            height: 80px;
+            border: 8px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: white;
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        /* Main Container */
+        .main {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .content {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Clock Section */
+        .clock-section {
+            text-align: center;
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .clock-section h1 {
+            font-size: 4rem;
+            color: white;
+            font-weight: 100;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .date-section {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            font-weight: 300;
+        }
+
+        /* Notification Card */
+        .notification {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            transform: translateX(-100vw);
+            opacity: 0;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100vw);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.blink {
+            animation: blink 1.2s infinite ease;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .notification:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .notif-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .notif-app {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #555;
+        }
+
+        .whatsapp-icon {
+            background: linear-gradient(190deg, #72e587, #23a542);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .notif-time {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .notif-sender {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .notif-message {
+            color: #555;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Button */
+        .btn-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1e3c72;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            animation: bounce 1.2s infinite ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            animation: none;
+        }
+
+        .btn.hidden {
+            display: none;
+        }
+
+        /* Message Card */
+        .message-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 40px 30px;
+            margin: 20px 0;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .message-card.show {
+            display: block;
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .message-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+            }
+            100% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+            }
+        }
+
+        /* Logo */
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-container img {
+            width: 120px;
+            height: auto;
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.2));
+        }
+
+        .photo-container {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .photo-frame {
+            display: inline-block;
+            padding: 8px;
+            background: linear-gradient(135deg, #1e3c72 0%, #7e22ce 100%);
+            border-radius: 50%;
+            box-shadow: 0 10px 40px rgba(30, 60, 114, 0.4);
+        }
+
+        .photo-frame img {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid white;
+        }
+
+        .message-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .message-header h2 {
+            font-family: 'Amiri', serif;
+            font-size: 1.8rem;
+            color: #1e3c72;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .message-header .bismillah {
+            font-family: 'Amiri', serif;
+            font-size: 1.5rem;
+            color: #7e22ce;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .message-body {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .message-body p {
+            margin-bottom: 15px;
+        }
+
+        .message-body .highlight {
+            font-family: 'Amiri', serif;
+            font-size: 1.2rem;
+            color: #7e22ce;
+            font-weight: 700;
+            text-align: center;
+            margin: 25px 0;
+            padding: 15px;
+            background: rgba(126, 34, 206, 0.1);
+            border-radius: 15px;
+            border-left: 4px solid #7e22ce;
+        }
+
+        .doa-list {
+            margin: 25px 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .doa-list li {
+            padding: 15px 20px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, rgba(30, 60, 114, 0.1) 0%, rgba(126, 34, 206, 0.1) 100%);
+            border-radius: 15px;
+            border-left: 4px solid #1e3c72;
+            font-size: 0.95rem;
+            color: #555;
+            transition: all 0.3s ease;
+        }
+
+        .doa-list li:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3);
+        }
+
+        .doa-list li::before {
+            content: '🤲';
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .team-signature {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid rgba(30, 60, 114, 0.2);
+        }
+
+        .team-signature p {
+            color: #555;
+            font-size: 0.95rem;
+            margin: 5px 0;
+        }
+
+        .team-signature .team-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e3c72;
+            margin-top: 10px;
+        }
+
+        /* WhatsApp Button */
+        .wa-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #72e587, #23a542);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(35, 165, 66, 0.4);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .wa-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(35, 165, 66, 0.6);
+        }
+
+        .wa-button::before {
+            content: '📱 ';
+            margin-right: 8px;
+        }
+
+        /* Typing Animation */
+        .typing {
+            display: inline-block;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background-color: #333;
+            margin-left: 2px;
+            animation: blink-cursor 0.8s infinite;
+        }
+
+        @keyframes blink-cursor {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .clock-section h1 {
+                font-size: 3rem;
+            }
+
+            .message-card {
+                padding: 30px 20px;
+            }
+
+            .photo-frame img {
+                width: 150px;
+                height: 150px;
+            }
+
+            .message-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .btn, .wa-button {
+                padding: 12px 30px;
+                font-size: 1rem;
+            }
+
+            .logo-container img {
+                width: 100px;
+            }
+        }
+
+        /* Snow Animation */
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            z-index: 9999;
+            user-select: none;
+            cursor: default;
+            animation-name: snowfall;
+            animation-duration: 10s;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
+        @keyframes snowfall {
+            0% {
+                transform: translateY(0vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0.8;
+            }
+        }
+
+        .snowflake:nth-of-type(0) { left: 1%; animation-delay: 0s; font-size: 1em; }
+        .snowflake:nth-of-type(1) { left: 10%; animation-delay: 1s; font-size: 1.2em; }
+        .snowflake:nth-of-type(2) { left: 20%; animation-delay: 0.5s; font-size: 0.8em; }
+        .snowflake:nth-of-type(3) { left: 30%; animation-delay: 2s; font-size: 1.5em; }
+        .snowflake:nth-of-type(4) { left: 40%; animation-delay: 1.5s; font-size: 1em; }
+        .snowflake:nth-of-type(5) { left: 50%; animation-delay: 0.8s; font-size: 1.3em; }
+        .snowflake:nth-of-type(6) { left: 60%; animation-delay: 2.5s; font-size: 0.9em; }
+        .snowflake:nth-of-type(7) { left: 70%; animation-delay: 1.2s; font-size: 1.1em; }
+        .snowflake:nth-of-type(8) { left: 80%; animation-delay: 0.3s; font-size: 1.4em; }
+        .snowflake:nth-of-type(9) { left: 90%; animation-delay: 1.8s; font-size: 1em; }
+        .snowflake:nth-of-type(10) { left: 95%; animation-delay: 0.6s; font-size: 1.2em; }
+
+        /* SweetAlert Custom Style */
+        .swal2-popup {
+            border-radius: 20px !important;
+        }
+
+        .swal2-confirm {
+            background: linear-gradient(135deg, #1e3c72, #7e22ce) !important;
+            border-radius: 50px !important;
+            padding: 12px 40px !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loader"></div>
+        <div class="loading-text">Memuat pesan...</div>
+    </div>
+
+    <!-- Audio -->
+    <audio id="bgAudio" loop>
+        <source src="https://dekatutorial.github.io/Sezairi%20-%20It's%20You.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="notifSound" src="https://dekatutorial.github.io/notif.mp3"></audio>
+
+    <!-- Main Container -->
+    <div class="main">
+        <div class="content">
+            <!-- Clock Section -->
+            <div class="clock-section">
+                <h1 id="clock">00:00</h1>
+                <div class="date-section">
+                    <p id="date">Loading...</p>
+                </div>
+            </div>
+
+            <!-- First Notification -->
+            <div class="notification notification1 blink" id="notif1" onclick="openFirstNotif()">
+                <div class="notif-header">
+                    <div class="notif-app">
+                        <div class="whatsapp-icon">
+                            <i class="material-icons-sharp">whatsapp</i>
+                        </div>
+                        <span style="font-weight: 500;">WHATSAPP</span>
+                    </div>
+                    <div class="notif-time">Now</div>
+                </div>
+                <div class="notif-sender">Tim Tanamin</div>
+                <div class="notif-message">Assalamu'alaikum, ada pesan penting nih!</div>
+            </div>
+
+            <!-- Second Notification (Hidden initially) -->
+            <div class="notification notification2" id="notif2">
+                <div class="notif-header">
+                    <div class="notif-app">
+                        <div class="whatsapp-icon">
+                            <i class="material-icons-sharp">whatsapp</i>
+                        </div>
+                        <span style="font-weight: 500;">WHATSAPP</span>
+                    </div>
+                    <div class="notif-time">Now</div>
+                </div>
+                <div class="notif-sender">Tim Tanamin</div>
+                <div class="notif-message" id="personalMessage"></div>
+            </div>
+
+            <!-- Button Start -->
+            <div class="btn-container">
+                <button class="btn" id="btnStart" onclick="openFirstNotif()">
+                    Buka Pesan 📬
+                </button>
+                <button class="btn hidden" id="btnOpen">
+                    Buka Pesannya
+                </button>
+            </div>
+
+            <!-- Message Card (Hidden initially) -->
+            <div class="message-card" id="messageCard">
+                <div class="photo-container">
+                    <div class="photo-frame">
+                        <img src="nissa.jpeg" alt="Khairunnisa Adhar">
+                    </div>
+                </div>
+
+                <div class="message-header">
+                    <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
+                    <h2>Untuk: Khairunnisa Adhar</h2>
+                </div>
+
+                <div class="message-body">
+                    <p id="greetingText"></p>
+
+                    <p id="typingText" class="typing"></p>
+
+                    <div class="highlight" id="quranVerse" style="display: none;">
+                        <div style="font-family: 'Amiri', serif; font-size: 1.4rem; margin-bottom: 15px; direction: rtl;">
+                            وَمَن يَشْكُرْ فَإِنَّمَا يَشْكُرُ لِنَفْسِهِ
+                        </div>
+                        "Dan barangsiapa bersyukur, maka sesungguhnya ia bersyukur untuk dirinya sendiri"
+                        <br><small>(QS. Luqman: 12)</small>
+                    </div>
+
+                    <p id="closingText" style="display: none;">
+                        Semoga Allah SWT senantiasa memberikan keberkahan dalam setiap langkahmu, 
+                        melimpahkan kesehatan, kebahagiaan, dan kesuksesan dalam segala urusan dunia dan akhirat.
+                    </p>
+
+                    <ul class="doa-list" id="doaList" style="display: none;">
+                        <li>Semoga Allah SWT memberikan keberkahan dalam hidupmu</li>
+                        <li>Semoga selalu dalam lindungan dan rahmat-Nya</li>
+                        <li>Semoga dimudahkan dalam setiap urusan</li>
+                        <li>Semoga menjadi pribadi yang bermanfaat bagi sesama</li>
+                        <li>Semoga Allah SWT mengabulkan semua doa-doa baikmu</li>
+                    </ul>
+
+                    <p id="thankYouText" style="display: none;">
+                        Makasih banyak ya udah jadi bagian dari perjalanan Tanamin! 
+                        Semoga kita semua selalu dalam ridho Allah SWT dan terus berkembang bareng-bareng. 🌱
+                    </p>
+
+                    <div class="team-signature" id="teamSignature" style="display: none;">
+                        <p>Dengan penuh rasa syukur dan doa,</p>
+                        <p class="team-name">🌱 Tim Tanamin</p>
+                        <div class="logo-container" style="margin-top: 20px;">
+                            <img src="tanamin.png" alt="Tim Tanamin" style="width: 100px;">
+                        </div>
+                        <p style="margin-top: 15px; font-size: 0.85rem; color: #888;">
+                            "Tumbuh Bersama, Berkah Bersama"
+                        </p>
+                    </div>
+                </div>
+
+                <!-- WhatsApp Button - Moved outside message-body to appear at the very end -->
+                <div style="text-align: center; padding: 20px 30px;" id="waButtonContainer" style="display: none;">
+                    <a href="#" class="wa-button" id="waButton" onclick="sendWhatsApp()">
+                        Kirim Konfirmasi via WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Snow Animation -->
+    <div id="snowContainer"></div>
+
+    <script>
+        let userName = '';
+        const whatsappNumber = '6285213081309';
+        let typingIndex = 0;
+        let typingSpeed = 80;
+        let fullText = '';
+
+        // Clock function
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('clock').textContent = `${hours}:${minutes}`;
+        }
+
+        // Date function
+        function updateDate() {
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
+                          'August', 'September', 'October', 'November', 'December'];
+            const now = new Date();
+            const dayName = days[now.getDay()];
+            const date = now.getDate();
+            const monthName = months[now.getMonth()];
+            document.getElementById('date').textContent = `${dayName}, ${date} ${monthName}`;
+        }
+
+        // Typing animation
+        function typeWriter() {
+            if (typingIndex < fullText.length) {
+                document.getElementById('typingText').textContent += fullText.charAt(typingIndex);
+                typingIndex++;
+                setTimeout(typeWriter, typingSpeed);
+            } else {
+                // Remove cursor after typing is done
+                document.getElementById('typingText').classList.remove('typing');
+                
+                // Show other elements after typing is complete
+                setTimeout(() => {
+                    document.getElementById('quranVerse').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('closingText').style.display = 'block';
+                        setTimeout(() => {
+                            document.getElementById('doaList').style.display = 'block';
+                            setTimeout(() => {
+                                document.getElementById('thankYouText').style.display = 'block';
+                                setTimeout(() => {
+                                    document.getElementById('teamSignature').style.display = 'block';
+                                    // Show WhatsApp button last and start snow animation
+                                    setTimeout(() => {
+                                        document.getElementById('waButtonContainer').style.display = 'block';
+                                        createSnowflakes();
+                                    }, 500);
+                                }, 500);
+                            }, 500);
+                        }, 500);
+                    }, 500);
+                }, 500);
+            }
+        }
+
+        // Initialize
+        window.addEventListener('load', function() {
+            updateClock();
+            updateDate();
+            setInterval(updateClock, 1000);
+
+            setTimeout(function() {
+                document.getElementById('loadingScreen').classList.add('hidden');
+                document.getElementById('notif1').classList.add('show');
+                // Play notification sound when first notification appears
+                document.getElementById('notifSound').play().catch(e => console.log('Audio autoplay prevented'));
+            }, 1500);
+        });
+
+        // SweetAlert config
+        const Swal2 = Swal.mixin({
+            confirmButtonColor: '#1e3c72',
+            allowOutsideClick: false,
+            customClass: {
+                popup: 'swal2-popup'
+            }
+        });
+
+        // Open first notification
+        async function openFirstNotif() {
+            document.getElementById('btnStart').classList.add('hidden');
+            
+            const { value: name } = await Swal2.fire({
+                title: 'Assalamu\'alaikum! 👋',
+                text: 'Siapa nih yang mau buka pesannya?',
+                input: 'text',
+                inputPlaceholder: 'Nama kamu...',
+                confirmButtonText: 'Kirim',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'Isi dulu dong namanya!';
+                    }
+                }
+            });
+
+            if (name) {
+                userName = name;
+                document.getElementById('btnStart').style.display = 'none';
+                
+                // Play notification sound
+                document.getElementById('notifSound').play();
+                
+                // Show second notification
+                setTimeout(() => {
+                    const personalMsg = `Wa'alaikumsalam ${userName}! Ada pesan spesial buat Nissa nih 💜`;
+                    document.getElementById('personalMessage').textContent = personalMsg;
+                    document.getElementById('notif1').style.display = 'none';
+                    document.getElementById('notif2').classList.add('show', 'blink');
+                    document.getElementById('btnOpen').classList.remove('hidden');
+                    
+                    // Update greeting in message card
+                    document.getElementById('greetingText').textContent = 
+                        `Assalamu'alaikum Warahmatullahi Wabarakatuh, ${userName}!`;
+                    
+                    // Set the text to be typed
+                    fullText = `Halo Nissa! Kami dari Tim Tanamin mau ngucapin makasih banget buat semua kontribusi dan dedikasimu selama ini. Kamu udah jadi bagian penting dari keluarga kecil kita! 🌱`;
+                }, 500);
+            } else {
+                document.getElementById('btnStart').classList.remove('hidden');
+            }
+        }
+
+        // Open message card
+        document.getElementById('btnOpen').addEventListener('click', function() {
+            document.getElementById('notif2').classList.remove('blink');
+            document.getElementById('btnOpen').classList.add('hidden');
+            
+            // Play notification sound and music
+            document.getElementById('notifSound').play();
+            
+            // Play background music
+            const audio = document.getElementById('bgAudio');
+            audio.volume = 0.3;
+            audio.play().catch(e => console.log('Audio autoplay prevented'));
+            
+            // Show message card
+            setTimeout(() => {
+                document.getElementById('notif2').style.display = 'none';
+                document.getElementById('messageCard').classList.add('show');
+                
+                // Scroll to message card
+                document.getElementById('messageCard').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+                
+                // Start typing animation after card is shown
+                setTimeout(() => {
+                    typeWriter();
+                }, 800);
+            }, 300);
+        });
+
+        // Create snowflakes animation
+        function createSnowflakes() {
+            const snowContainer = document.getElementById('snowContainer');
+            const snowflakes = ['❄', '❅', '❆', '✻', '✼', '❉', '✺'];
+            const numberOfFlakes = 50;
+
+            for (let i = 0; i < numberOfFlakes; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.innerHTML = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+                snowflake.style.left = Math.random() * 100 + '%';
+                snowflake.style.animationDelay = Math.random() * 10 + 's';
+                snowflake.style.fontSize = (Math.random() * 1.5 + 0.5) + 'em';
+                snowflake.style.opacity = Math.random() * 0.6 + 0.4;
+                snowContainer.appendChild(snowflake);
+            }
+        }
+
+        // Send WhatsApp
+        function sendWhatsApp() {
+            const message = `Assalamu'alaikum Tim Tanamin! 
+
+Saya ${userName} udah nerima pesan apresiasi buat Saya. 
+
+Makasih banyak ya atas doa dan dukungannya. Semoga Allah SWT membalas kebaikan kalian semua.
+
+Jazakumullahu khairan! 🌱`;
+
+            const encodedMessage = encodeURIComponent(message);
+            const waUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+            
+            window.open(waUrl, '_blank');
+        }
+    </script>
+</body>
+</html>
