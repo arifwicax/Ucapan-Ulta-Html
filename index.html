@@ -740,6 +740,212 @@
             25% { transform: rotateY(-10deg); }
             75% { transform: rotateY(10deg); }
         }
+
+        /* Code Validation Modal */
+        .code-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .code-modal-overlay.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .code-modal {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.95));
+            border-radius: 30px;
+            padding: 40px 30px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .code-modal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .code-modal-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite;
+        }
+
+        .code-modal-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+
+        .code-modal-subtitle {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .code-input-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .code-input {
+            width: 100%;
+            padding: 18px 20px;
+            font-size: 1.3rem;
+            text-align: center;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            background: white;
+        }
+
+        .code-input:focus {
+            border-color: #7e22ce;
+            box-shadow: 0 0 0 4px rgba(126, 34, 206, 0.1);
+            transform: scale(1.02);
+        }
+
+        .code-input.error {
+            border-color: #ff4444;
+            animation: shakeInput 0.5s ease;
+        }
+
+        @keyframes shakeInput {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .code-input.success {
+            border-color: #4caf50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .code-submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #1e3c72, #7e22ce);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(30, 60, 114, 0.3);
+        }
+
+        .code-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(30, 60, 114, 0.4);
+        }
+
+        .code-submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .code-error-message {
+            color: #ff4444;
+            font-size: 0.95rem;
+            margin-top: 10px;
+            min-height: 24px;
+            font-weight: 500;
+        }
+
+        .code-hint {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid #ffc107;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #666;
+            display: none;
+        }
+
+        .code-hint.show {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .code-attempts {
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .code-modal {
+                padding: 30px 20px;
+            }
+
+            .code-modal-title {
+                font-size: 1.5rem;
+            }
+
+            .code-input {
+                font-size: 1.1rem;
+                padding: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -844,7 +1050,43 @@
                 </button>
             </div>
 
+            <!-- Code Validation Modal -->
+            <div class="code-modal-overlay" id="codeModalOverlay">
+                <div class="code-modal">
+                    <div class="code-modal-icon">🔐</div>
+                    <h2 class="code-modal-title">Kode Akses Rahasia</h2>
+                    <p class="code-modal-subtitle">
+                        Psst... hanya kamu yang punya kode akses khusus ini! 🤫<br>
+                        Masukkan kode rahasia untuk membuka pesan spesialnya~
+                    </p>
+                    
+                    <div class="code-input-container">
+                        <input 
+                            type="text" 
+                            id="codeInput" 
+                            class="code-input" 
+                            placeholder="MASUKKAN KODE"
+                            maxlength="20"
+                            autocomplete="off"
+                        >
+                    </div>
+                    
+                    <button class="code-submit-btn" id="codeSubmitBtn" onclick="validateCode()">
+                        Buka Pesan 🎁
+                    </button>
+                    
+                    <div class="code-error-message" id="codeErrorMessage"></div>
+                    
+                    <div class="code-hint" id="codeHint">
+                        💡 <strong>Hint:</strong> Nama + tahun kelahiran (contoh: NISSA2001)
+                    </div>
+                    
+                    <div class="code-attempts" id="codeAttempts"></div>
+                </div>
+            </div>
+
             <!-- Message Card (Hidden initially) -->
+
             <div class="message-card" id="messageCard">
                 <div class="photo-container">
                     <div class="photo-frame">
@@ -919,9 +1161,23 @@
         let typingIndex = 0;
         let typingSpeed = 80;
         let fullText = '';
-        const targetDate = new Date('2026-01-29T00:00:00').getTime();
+        const targetDate = new Date('2026-01-07T00:00:00').getTime();
         let countdownInterval;
         let isGiftUnlocked = false;
+        
+        // Code validation variables
+        const SECRET_CODE = 'NISSA1989'; // Change this to your desired code
+        let codeAttempts = 0;
+        const MAX_ATTEMPTS = 5;
+        let isCodeValidated = false;
+        
+        const errorMessages = [
+            'Hmm... kayaknya bukan itu deh 🤔',
+            'Coba inget-inget lagi... pasti kamu tau! 💭',
+            'Hampir! Tapi belum bener nih 😅',
+            'Yuk semangat, coba lagi! 💪',
+            'Jangan menyerah ya! Kamu pasti bisa! ✨'
+        ];
 
         // Clock function
 
@@ -1157,11 +1413,87 @@
             }
         }
 
-        // Open message card
-        document.getElementById('btnOpen').addEventListener('click', function() {
-            document.getElementById('notif2').classList.remove('blink');
-            document.getElementById('btnOpen').classList.add('hidden');
+        // Code Validation Function
+        function validateCode() {
+            const input = document.getElementById('codeInput');
+            const errorMsg = document.getElementById('codeErrorMessage');
+            const hintDiv = document.getElementById('codeHint');
+            const attemptsDiv = document.getElementById('codeAttempts');
+            const userCode = input.value.trim().toUpperCase();
             
+            // Check if input is empty
+            if (!userCode) {
+                input.classList.add('error');
+                errorMsg.textContent = 'Isi dulu kodenya ya! 😊';
+                setTimeout(() => input.classList.remove('error'), 500);
+                return;
+            }
+            
+            // Check if code is correct
+            if (userCode === SECRET_CODE) {
+                input.classList.remove('error');
+                input.classList.add('success');
+                errorMsg.textContent = '';
+                isCodeValidated = true;
+                
+                // Success animation
+                Swal2.fire({
+                    title: 'Yeay! Kamu berhasil! 🎉',
+                    text: 'Kode benar! Sekarang kamu bisa baca pesannya~',
+                    icon: 'success',
+                    confirmButtonText: 'Lanjut!',
+                    timer: 2000
+                }).then(() => {
+                    // Hide modal and show message card
+                    document.getElementById('codeModalOverlay').classList.remove('show');
+                    showMessageCard();
+                });
+                
+                return;
+            }
+            
+            // Wrong code
+            codeAttempts++;
+            input.classList.add('error');
+            input.value = '';
+            
+            // Show error message
+            const messageIndex = Math.min(codeAttempts - 1, errorMessages.length - 1);
+            errorMsg.textContent = errorMessages[messageIndex];
+            
+            // Show hint after 2 attempts
+            if (codeAttempts >= 2) {
+                hintDiv.classList.add('show');
+            }
+            
+            // Update attempts counter
+            const remaining = MAX_ATTEMPTS - codeAttempts;
+            if (remaining > 0) {
+                attemptsDiv.textContent = `Sisa percobaan: ${remaining}x`;
+            } else {
+                attemptsDiv.textContent = 'Udah habis percobaannya 😅';
+                // Optionally disable input after max attempts
+                // input.disabled = true;
+                // document.getElementById('codeSubmitBtn').disabled = true;
+            }
+            
+            setTimeout(() => input.classList.remove('error'), 500);
+        }
+        
+        // Allow Enter key to submit code
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeInput = document.getElementById('codeInput');
+            if (codeInput) {
+                codeInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        validateCode();
+                    }
+                });
+            }
+        });
+        
+        // Function to show message card (extracted for reuse)
+        function showMessageCard() {
             // Play notification sound and music
             document.getElementById('notifSound').play();
             
@@ -1185,6 +1517,20 @@
                 setTimeout(() => {
                     typeWriter();
                 }, 800);
+            }, 300);
+        }
+
+        // Open message card - Modified to show code validation modal
+        document.getElementById('btnOpen').addEventListener('click', function() {
+            document.getElementById('notif2').classList.remove('blink');
+            document.getElementById('btnOpen').classList.add('hidden');
+            
+            // Show code validation modal instead of directly showing message
+            document.getElementById('codeModalOverlay').classList.add('show');
+            
+            // Focus on input
+            setTimeout(() => {
+                document.getElementById('codeInput').focus();
             }, 300);
         });
 
